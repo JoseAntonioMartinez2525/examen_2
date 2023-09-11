@@ -1,29 +1,31 @@
-
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const grid = 64;
 const numRows = 13;
 const numCols = 15;
+let playerX = 0; // La posición X del jugador en el canvas
+let playerY = 0; // La posición Y del jugador en el canvas
+const playerSpeed = 4; // Velocidad de movimiento del jugador
 
 //pared blanda o destruible
 const softWall = document.createElement('canvas');
 const softWallCtx = softWall.getContext('2d');
 softWall.width = softWall.height = grid;
 
-softWallCtx.fillStyle ="black";
-softWallCtx.fillRect(0,0,grid,grid);
-softWallCtx.fillStyle ="#a9a9a9";
+softWallCtx.fillStyle = "black";
+softWallCtx.fillRect(0, 0, grid, grid);
+softWallCtx.fillStyle = "#a9a9a9";
 
 //1° fila cubos
-softWallCtx.fillRect(1,1,grid-2,20);
+softWallCtx.fillRect(1, 1, grid - 2, 20);
 
 //2°fila cubos
-softWallCtx.fillRect(0,23,20,18);
-softWallCtx.fillRect(22,23,42,18);
+softWallCtx.fillRect(0, 23, 20, 18);
+softWallCtx.fillRect(22, 23, 42, 18);
 
 //3°fila cubos
-softWallCtx.fillRect(0,43,42,20);
-softWallCtx.fillRect(44,43,20,20);
+softWallCtx.fillRect(0, 43, 42, 20);
+softWallCtx.fillRect(44, 43, 20, 20);
 
 //pared
 const wall = document.createElement('canvas');
@@ -31,105 +33,105 @@ const wallCtx = wall.getContext('2d');
 wall.width = wall.height = grid;
 
 wallCtx.fillStyle = 'black';
-wallCtx.fillRect(0,0,grid,grid);
+wallCtx.fillRect(0, 0, grid, grid);
 wallCtx.fillStyle = 'white';
-wallCtx.fillRect(0,0,grid-2,grid-2);
-wallCtx.fillStyle ="#a9a9a9";
-wallCtx.fillRect(2,2,grid-4,grid-4);
+wallCtx.fillRect(0, 0, grid - 2, grid - 2);
+wallCtx.fillStyle = "#a9a9a9";
+wallCtx.fillRect(2, 2, grid - 4, grid - 4);
 
 //mapa
 const types = {
-    wall: '\\u{03A9}',
-    softWall:1,
-    bomb:2
+    wall: '🧱',
+    softWall: 1,
+    bomb: 2
 }
 
 let entidades = [];
 let cells = [];
 
 const template = [
-    ['\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}'],
-    ['\\u{03A9}','x','x','  ','  ','  ','  ','  ','  ','  ','  ','  ','x','x'],
-    ['\\u{03A9}','x','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}'],
-    ['\\u{03A9}','x','  ','  ','  ','  ','  ','  ','  ','  ','  ','  ','  ','x'],
-    ['\\u{03A9}',' ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}'],
-    ['\\u{03A9}',' ','  ','  ','  ','  ','  ','  ','  ','  ','  ','  ','  ',' '],
-    ['\\u{03A9}',' ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}'],
-    ['\\u{03A9}',' ','  ','  ','  ','  ','  ','  ','  ','  ','  ','  ','  ',' '],
-    ['\\u{03A9}',' ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}'],
-    ['\\u{03A9}','x','  ','  ','  ','  ','  ','  ','  ','  ','  ','  ','  ','x'],
-    ['\\u{03A9}','x','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}','  ','\\u{03A9}'],
-    ['\\u{03A9}','x','x','  ','  ','  ','  ','  ','  ','  ','  ','  ','x','x'],
-    ['\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}','\\u{03A9}']
+    ['🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱'],
+    ['🧱', 'x', 'x', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', 'x', 'x'],
+    ['🧱', 'x', '🧱', '', '🧱', '', '🧱', '', '🧱', '', '🧱', '  ', '🧱'],
+    ['🧱', 'x', '  ', '', '  ', '', '', '', '  ', '  ', '  ', '  ', '  ', 'x'],
+    ['🧱', '', '🧱', '  ', '🧱', '', '🧱', '', '🧱', '', '🧱', '  ', '🧱'],
+    ['🧱', '', '  ', '', '  ', '  ', '', '  ', '  ', '  ', '  ', '', '  ', ' '],
+    ['🧱', ' ', '🧱', '  ', '🧱', '', '🧱', '', '🧱', '  ', '🧱', '  ', '🧱'],
+    ['🧱', ' ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '', '🧱'],
+    ['🧱', '', '🧱', '  ', '🧱', '', '🧱', '', '🧱', '', '🧱', '  ', '🧱'],
+    ['🧱', 'x', '  ', '  ', '  ', '  ', '  ', '  ', '', '  ', '  ', '  ', '  ', 'x'],
+    ['🧱', 'x', '🧱', '', '🧱', '  ', '🧱', '', '🧱', '', '🧱', '  ', '🧱'],
+    ['🧱', 'x', 'x', '', '  ', '  ', '  ', '  ', '', '  ', '  ', '  ', 'x', 'x'],
+    ['🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱']
 ];
 
 //generar el nivel con paredes y paredes destruibles
-function generateLevel(){
+function generateLevel() {
     cells = [];
     for (let row = 0; row < numRows; row++) {
-    cells[row] = [];
+        cells[row] = [];
 
         for (let col = 0; col < numCols; col++) {
-           
+
             if (!template[row][col] && Math.random() < 0.90) {
                 cells[row][col] = types.softWall;
-            }else if(template[row][col]===types.wall){
+            } else if (template[row][col] === types.wall) {
                 cells[row][col] = types.wall;
             }
         }
-        
+
     }
 }
 
 //hacer explotar bomba y lo que rodea
-function explotarBomba(bomb){
+function explotarBomba(bomb) {
 
-    if(!bomb.alive) return;
+    if (!bomb.alive) return;
     bomb.alive = false;
 
     //quita la bomba del grid
-    cells[bomb.row][bomb.col]= null;
+    cells[bomb.row][bomb.col] = null;
 
-    //explota la bomba deacuerdo a su tamaño
+    //explota la bomba de acuerdo a su tamaño
     const dirs = [{
         //arriba
-        row:-1,
-        col:0
+        row: -1,
+        col: 0
     }, {
         //abajo
-        row:1,
-        col:0       
+        row: 1,
+        col: 0
     }, {
-        //izquerda
-        row:0,
-        col:-1       
+        //izquierda
+        row: 0,
+        col: -1
     }, {
         //derecha
-        row:0,
-        col:1      
+        row: 0,
+        col: 1
     }];
 
-    dirs.forEach((dir)=>{
+    dirs.forEach((dir) => {
         for (let i = 0; i < bomb.size; i++) {
             const row = bomb.row + dir.row * i;
             const col = bomb.col + dir.col * i;
             const cell = cells[row][col];
 
-            //detiene la explosion si choca  con una pared
+            //detiene la explosión si choca con una pared
             if (cell === types.wall) {
                 return
             }
 
-            //explosion empieza en el centro
-            entidades.push(new Explosion(row, col, dir, i === 0 ? true:false));
+            //explosión empieza en el centro
+            entidades.push(new Explosion(row, col, dir, i === 0 ? true : false));
             cells[row][col] = null;
 
             //si la bomba choca con otra bomba
             if (cell === types.bomb) {
-                
-                //comparar  posiciones
-                const nextbomb = entidades.find((entidad)=>{
-                    return(
+
+                //comparar posiciones
+                const nextbomb = entidades.find((entidad) => {
+                    return (
                         entidad.type === types.bomb &&
                         entidad.row === row && entidad.col === col
                     );
@@ -137,8 +139,8 @@ function explotarBomba(bomb){
                 explotarBomba(nextbomb);
             }
 
-            //detiene la explosion si colisiona con algo
-            if(cell){
+            //detiene la explosión si colisiona con algo
+            if (cell) {
                 return
             }
         }
@@ -209,10 +211,10 @@ class Explosion {
         this.dir = dir;
         this.alive = true;
 
-        //muestra explosion por 3 seg.
+        //muestra explosión por 3 seg.
         this.timer = 3000;
 
-        //actualizar la explosion en cada frame
+        //actualizar la explosión en cada frame
         this.update = function (dt) {
             this.timer -= dt;
 
@@ -221,7 +223,7 @@ class Explosion {
 
             }
         };
-        //renderizar la explosion en cada frame
+        //renderizar la explosión en cada frame
         this.render = function () {
             const x = (this.col + 0.5) * grid;
             const y = (this.row + 0.5) * grid;
@@ -253,70 +255,133 @@ class Explosion {
     }
 }
 
-    //dibujar jugador
-    const player = {
-        row:1,
-        col:1,
-        numBombs:1,
-        bombSize:3,
-        radio:grid*0.35,
-        render(){
-            const x = (this.col + 0.5) * grid;
-            const y = (this.row + 0.5) * grid;
+//dibujar jugador
+const player = {
+    row: 1,
+    col: 1,
+    numBombs: 1,
+    bombSize: 3,
+    radio: grid * 0.35,
+    render() {
+        const x = (this.col + 0.5) * grid;
+        const y = (this.row + 0.5) * grid;
 
-            ctx.save();
-            ctx.fillStyle="white";
-            ctx.beginPath();
-            ctx.arc(x, y, this.radio, 0, 2 * Math.PI);
-            ctx.fill();
+        ctx.save();
+        // Dibujar la imagen del jugador
+        ctx.drawImage(playerImage, player.col * grid, player.row * grid, grid, grid);
 
+        ctx.fill();
+        ctx.restore();
 
+    }
+}
+
+// Ciclo juego
+let last;
+let dt;
+
+function loop(timestamp) {
+    requestAnimationFrame(loop);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Calcular dif de tiempo
+    if (!last) {
+        last = timestamp;
+    }
+    dt = timestamp - last;
+    last = timestamp;
+
+    // Actualizar y renderizar todo en el grid
+    for (let row = 0; row < numRows; row++) {
+        for (let col = 0; col < numCols; col++) {
+            switch (cells[row][col]) {
+                case types.wall:
+                    ctx.drawImage(wall, col * grid, row * grid);
+                    break;
+                case types.softWall:
+                    ctx.drawImage(softWall, col * grid, row * grid);
+                    break;
+                    
+            }
         }
     }
-    //ciclo juego
-    let last;
-    let dt;
-
-    function loop(timestamp){
-        requestAnimationFrame(loop);
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-
-        //Calcular dif de tiempo
-        if (!last) {
-            last = timestamp;
-        }
-        dt = timestamp-last;
-        last = timestamp;
-
-        //Actualizar y renderizar todo en el grid
-        for(let row = 0;row<numRows; row++){
-            for(let col = 0;col<numCols; col++){
-                switch (cells[row][col]) {
-                    case types.wall:
-                        ctx.drawImage(wall,col * grid,row * grid);
-                        break;
-                    case types.softWall:
-                        ctx.drawImage(softWall,col * grid,row * grid);
-                        break;
-                }
-            
-        } 
-     }
-     //actualizar y renderizar todas las entidades
-     entidades.forEach((entidad)=>{
+    // Actualizar y renderizar todas las entidades
+    entidades.forEach((entidad) => {
         entidad.update(dt);
         entidad.render();
 
-     });
+    });
 
-     //eliminar entidad muerta
-     entidades = entidades.filter((entidad)=>entidad.alive);
+    // Eliminar entidad muerta
+    entidades = entidades.filter((entidad) => entidad.alive);
 
-     player.render();
+    player.render();
 
+}
+
+document.addEventListener('keydown', function (e) {
+    let row = player.row;
+    let col = player.col;
+
+    // Movimientos
+    switch (e.key) {
+        case 'ArrowLeft':
+        case 'a':
+            col--;
+            break;
+        case 'ArrowUp':
+        case 'w':
+            row--;
+            break;
+        case 'ArrowRight':
+        case 'd':
+            col++;
+            break;
+        case 'ArrowDown':
+        case 's':
+            row++;
+            break;
+        case ' ':
+            if (!cells[row][col]) { // Espacio
+                // Contar número de bombas
+                if (entidades.filter((entidad) => {
+                    return entidad.type === types.bomb &&
+                        entidad.owner === player;
+                }).length < player.numBombs) {
+                    const bomb = new Bomb(row, col, player.bombSize, player);
+                    entidades.push(bomb);
+                    cells[row][col] = types.bomb;
+
+                }
+                if (!cells[row][col]) {
+                    player.row = row;
+                    player.col = col;
+                }
+            }
+            break;
+        default:
+            break;
     }
-document.addEventListener('DOMContentLoaded', function (){
-//Comenzar juego
-generateLevel();
-requestAnimationFrame(loop);
 });
+
+// Crear una nueva imagen para el jugador
+const playerImage = new Image();
+playerImage.src = 'img/player.png';
+
+// Función para comenzar el juego una vez que la imagen del jugador se haya cargado
+playerImage.onload = function () {
+    // Elegir una posición aleatoria para el jugador en las 'x'
+    let playerRow, playerCol;
+    do {
+        playerRow = Math.floor(Math.random() * numRows);
+        playerCol = Math.floor(Math.random() * numCols);
+    } while (template[playerRow][playerCol] !== 'x');
+
+    // Establecer la posición inicial del jugador
+    player.row = playerRow;
+    player.col = playerCol;
+
+    // Comenzar el juego
+    generateLevel();
+    requestAnimationFrame(loop);
+};
