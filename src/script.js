@@ -225,8 +225,8 @@ class Explosion {
         };
         //renderizar la explosión en cada frame
         this.render = function () {
-            const x = (this.col + 0.5) * grid;
-            const y = (this.row + 0.5) * grid;
+            const x = (this.col) * grid;
+            const y = (this.row) * grid;
             const horizontal = this.dir.col;
             const vertical = this.dir.row;
 
