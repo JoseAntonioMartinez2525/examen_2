@@ -3,8 +3,8 @@ const ctx = canvas.getContext('2d');
 const grid = 50;
 const numRows = 13;
 const numCols = 15;
-let playerX = 0; // La posición X del jugador en el canvas
-let playerY = 0; // La posición Y del jugador en el canvas
+//let playerX = 0; // La posición X del jugador en el canvas
+//let playerY = 0; // La posición Y del jugador en el canvas
 const playerSpeed = 4; // Velocidad de movimiento del jugador
 
 //pared blanda o destruible
@@ -268,9 +268,7 @@ const player = {
 
         ctx.save();
         // Dibujar la imagen del jugador
-        ctx.drawImage(playerImage, player.col * grid, player.row * grid, grid, grid);
-
-        ctx.fill();
+        ctx.drawImage(playerImage, x - grid / 2, y - grid / 2, grid, grid);;
         ctx.restore();
 
     }
@@ -362,7 +360,19 @@ document.addEventListener('keydown', function (e) {
         default:
             break;
     }
+        // Verificar si la nueva posición es válida antes de actualizarla
+    if (isValidMove(row, col)) {
+        player.row = row;
+        player.col = col;
+        player.render(); // Actualizar la posición del jugador en el canvas
+    }
+    
 });
+
+// Función para verificar si una posición es válida
+function isValidMove(row, col) {
+    return row >= 0 && row < numRows && col >= 0 && col < numCols && cells[row][col] !== types.wall;
+}
 
 // Crear una nueva imagen para el jugador
 const playerImage = new Image();
