@@ -1,6 +1,6 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const grid = 64;
+const grid = 50;
 const numRows = 13;
 const numCols = 15;
 let playerX = 0; // La posición X del jugador en el canvas
