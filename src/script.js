@@ -10,6 +10,13 @@ const playerSpeed = 4; // Velocidad de movimiento del jugador
 //pared blanda o destruible
 const softWall = document.createElement('canvas');
 const softWallCtx = softWall.getContext('2d');
+
+let bombPlace = new Audio();
+let bombExplodes = new Audio();
+let stageStart = new Audio();
+
+bombPlace.src = 'sound/place_bomb.png';
+
 softWall.width = softWall.height = grid;
 
 softWallCtx.fillStyle = "black";
