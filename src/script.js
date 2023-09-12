@@ -11,11 +11,21 @@ const playerSpeed = 4; // Velocidad de movimiento del jugador
 const softWall = document.createElement('canvas');
 const softWallCtx = softWall.getContext('2d');
 
-let bombPlace = new Audio();
-let bombExplodes = new Audio();
-let stageStart = new Audio();
+const bombPlace = new Audio();
+const bombExplodes = new Audio();
+const stageStart = new Audio();
 
-bombPlace.src = 'sound/place_bomb.png';
+bombPlace.src = 'sound/place_bomb.mp3';
+bombExplodes.src = 'sound/boss_explosion.mp3';
+stageStart.src = 'sound/stage_start.mp3';
+
+bombPlace.addEventListener('canplaythrough', () => {
+    // Comenzar el juego aquí
+    generateLevel();
+    bombPlace.play();
+    requestAnimationFrame(loop);
+});
+
 
 softWall.width = softWall.height = grid;
 
@@ -88,8 +98,17 @@ function generateLevel() {
         }
 
     }
+    
 }
-
+// Función para colocar una nueva bomba
+function placeBomb(row, col) {
+    if (entidades.filter((entidad) => entidad.type === types.bomb && entidad.owner === player).length < player.numBombs) {
+        const bomb = new Bomb(row, col, player.bombSize, player);
+        entidades.push(bomb);
+        cells[row][col] = types.bomb;
+        bombPlace.play();
+    }
+}
 //hacer explotar bomba y lo que rodea
 function explotarBomba(bomb) {
 
@@ -146,12 +165,19 @@ function explotarBomba(bomb) {
                 explotarBomba(nextbomb);
             }
 
+            // Crea una nueva bomba si el jugador todavía tiene bombas disponibles
+    if (entidades.filter((entidad) => entidad.type === types.bomb && entidad.owner === player).length < player.numBombs) {
+        placeBomb(player.row, player.col);
+    }
+
             //detiene la explosión si colisiona con algo
             if (cell) {
                 return
             }
         }
     });
+    
+    bombExplodes.play();
 }
 
 //bomba
@@ -327,7 +353,15 @@ function loop(timestamp) {
 document.addEventListener('keydown', function (e) {
     let row = player.row;
     let col = player.col;
+    let audioInitialized = false;
 
+    if (!audioInitialized) {
+        
+        stageStart.play();
+        audioInitialized = true;
+    }
+
+    
     // Movimientos
     switch (e.key) {
         case 'ArrowLeft':
@@ -362,7 +396,9 @@ document.addEventListener('keydown', function (e) {
                     player.row = row;
                     player.col = col;
                 }
+                placeBomb(row, col);
             }
+            bombPlace.play();
             break;
         default:
             break;
@@ -400,5 +436,7 @@ playerImage.onload = function () {
 
     // Comenzar el juego
     generateLevel();
+    // Reproducir el sonido stageStart
+    stageStart.play();
     requestAnimationFrame(loop);
 };
