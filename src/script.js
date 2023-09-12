@@ -11,6 +11,7 @@ const playerSpeed = 4; // Velocidad de movimiento del jugador
 const softWall = document.createElement('canvas');
 const softWallCtx = softWall.getContext('2d');
 
+//sonidos
 const bombPlace = new Audio();
 const bombExplodes = new Audio();
 const stageStart = new Audio();
@@ -20,12 +21,13 @@ bombExplodes.src = 'sound/boss_explosion.mp3';
 stageStart.src = 'sound/stage_start.mp3';
 
 bombPlace.addEventListener('canplaythrough', () => {
-    // Comenzar el juego aquí
+    // Comenzar el juego 
     generateLevel();
     bombPlace.play();
     requestAnimationFrame(loop);
 });
 
+let score = 0;
 
 softWall.width = softWall.height = grid;
 
@@ -347,6 +349,7 @@ function loop(timestamp) {
     entidades = entidades.filter((entidad) => entidad.alive);
 
     player.render();
+    drawScore();
 
 }
 
@@ -421,6 +424,12 @@ function isValidMove(row, col) {
 // Crear una nueva imagen para el jugador
 const playerImage = new Image();
 playerImage.src = 'img/player.png';
+
+function drawScore() {
+    ctx.font = "24px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Score: " + score, 10, 0); // Ajusta la posición según tu diseño
+}
 
 // Función para comenzar el juego una vez que la imagen del jugador se haya cargado
 playerImage.onload = function () {
