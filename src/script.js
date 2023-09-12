@@ -414,7 +414,8 @@ document.addEventListener('keydown', function (e) {
 
 // Función para verificar si una posición es válida
 function isValidMove(row, col) {
-    return row >= 0 && row < numRows && col >= 0 && col < numCols && cells[row][col] !== types.wall;
+    return row >= 0 && row < numRows && col >= 0 && col < numCols && cells[row][col] !== types.wall &&
+        cells[row][col] !== types.softWall;
 }
 
 // Crear una nueva imagen para el jugador
