@@ -1,12 +1,12 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const grid = 50;
-const numRows = 13;
-const numCols = 15;
+const grid = 40;
+const numRows = 12;
+const numCols = 14;
 //let playerX = 0; // La posición X del jugador en el canvas
 //let playerY = 0; // La posición Y del jugador en el canvas
 const playerSpeed = 4; // Velocidad de movimiento del jugador
-
+const xColor = 'blue'; 
 //pared blanda o destruible
 const softWall = document.createElement('canvas');
 const softWallCtx = softWall.getContext('2d');
@@ -69,6 +69,7 @@ let entidades = [];
 let cells = [];
 
 const template = [
+     ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'],
     ['🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱'],
     ['🧱', 'x', 'x', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', '  ', 'x', 'x'],
     ['🧱', 'x', '🧱', '', '🧱', '', '🧱', '', '🧱', '', '🧱', '  ', '🧱'],
@@ -92,14 +93,16 @@ function generateLevel() {
 
         for (let col = 0; col < numCols; col++) {
 
-            if (!template[row][col] && Math.random() < 0.90) {
+            if (row === 0 && template[row][col] === 'x') {
+                cells[row][col] = xColor; // Cambia el color solo en la primera fila
+            } else if (!template[row][col] && Math.random() < 0.90) {
                 cells[row][col] = types.softWall;
             } else if (template[row][col] === types.wall) {
                 cells[row][col] = types.wall;
             }
         }
-
     }
+    
     
 }
 // Función para colocar una nueva bomba
@@ -428,7 +431,7 @@ playerImage.src = 'img/player.png';
 function drawScore() {
     ctx.font = "24px Arial";
     ctx.fillStyle = "white";
-    ctx.fillText("Score: " + score, 10, 0); // Ajusta la posición según tu diseño
+    ctx.fillText("Score: " + score, 10, 30); // Ajusta la posición según tu diseño
 }
 
 // Función para comenzar el juego una vez que la imagen del jugador se haya cargado
