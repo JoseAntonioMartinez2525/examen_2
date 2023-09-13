@@ -351,6 +351,8 @@ function loop(timestamp) {
     // Eliminar entidad muerta
     entidades = entidades.filter((entidad) => entidad.alive);
 
+    //Icrementar score
+    score+=10;
     player.render();
     drawScore();
 
