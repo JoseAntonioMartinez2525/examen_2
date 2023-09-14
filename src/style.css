@@ -13,5 +13,5 @@ body{
 }
 
 canvas{
-    background: rgb(193, 123, 28 );
+    background-image: url("img/grass.jpg");
 }
