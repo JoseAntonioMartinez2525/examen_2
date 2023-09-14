@@ -27,7 +27,7 @@ bombPlace.addEventListener('canplaythrough', () => {
     requestAnimationFrame(loop);
 });
 
-let score = 0;
+let time = 0;
 
 softWall.width = softWall.height = grid;
 
@@ -85,6 +85,7 @@ const template = [
     ['🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱', '🧱']
 ];
 
+let score = 0;
 //generar el nivel con paredes y paredes destruibles
 function generateLevel() {
     cells = [];
@@ -97,6 +98,7 @@ function generateLevel() {
                 cells[row][col] = xColor; // Cambia el color solo en la primera fila
             } else if (!template[row][col] && Math.random() < 0.90) {
                 cells[row][col] = types.softWall;
+                
             } else if (template[row][col] === types.wall) {
                 cells[row][col] = types.wall;
             }
@@ -151,6 +153,9 @@ function explotarBomba(bomb) {
             //detiene la explosión si choca con una pared
             if (cell === types.wall) {
                 return
+            }else if (cell === types.softWall) {
+                cells[row][col] = null;
+                score += 10; // Incrementa el puntaje en 10 puntos
             }
 
             //explosión empieza en el centro
@@ -352,9 +357,9 @@ function loop(timestamp) {
     entidades = entidades.filter((entidad) => entidad.alive);
 
     //Icrementar score
-    score+=10;
+    time+=1;
     player.render();
-    drawScore();
+    drawTime();
 
 }
 
@@ -422,7 +427,8 @@ document.addEventListener('keydown', function (e) {
 
 // Función para verificar si una posición es válida
 function isValidMove(row, col) {
-    return row >= 0 && row < numRows && col >= 0 && col < numCols && cells[row][col] !== types.wall &&
+    
+    return row > 0 && row < numRows && col >= 0 && col < numCols && cells[row][col] !== types.wall &&
         cells[row][col] !== types.softWall;
 }
 
@@ -430,10 +436,22 @@ function isValidMove(row, col) {
 const playerImage = new Image();
 playerImage.src = 'img/player.png';
 
-function drawScore() {
+function drawTime() {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = time % 60;
+
+    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
     ctx.font = "24px Arial";
     ctx.fillStyle = "white";
-    ctx.fillText("Score: " + score, 10, 30); // Ajusta la posición según tu diseño
+    ctx.fillText("Tiempo: " + formattedTime, 10, 30); 
+
+     //Puntaje
+    ctx.fillText("Puntaje: " + score, 400, 30);
+}
+
+function padZero(num) {
+    return num.toString().padStart(2, '0');
 }
 
 // Función para comenzar el juego una vez que la imagen del jugador se haya cargado
@@ -443,7 +461,7 @@ playerImage.onload = function () {
     do {
         playerRow = Math.floor(Math.random() * numRows);
         playerCol = Math.floor(Math.random() * numCols);
-    } while (template[playerRow][playerCol] !== 'x');
+    } while (template[playerRow][playerCol] !== 'x'|| playerRow === 0);
 
     // Establecer la posición inicial del jugador
     player.row = playerRow;
