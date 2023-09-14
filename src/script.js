@@ -11,6 +11,17 @@ const xColor = 'blue';
 const softWall = document.createElement('canvas');
 const softWallCtx = softWall.getContext('2d');
 
+//pausa
+const pauseScreen = document.getElementById('pauseScreen');
+pauseScreen.style.width = canvas.width + 'px';
+pauseScreen.style.height = canvas.height + 'px';
+
+const canvasRect = canvas.getBoundingClientRect();
+pauseScreen.style.left = canvasRect.left + 'px';
+pauseScreen.style.top = canvasRect.top + 'px';
+
+const pauseText = document.getElementById('pauseText');
+let isPaused = false;
 //sonidos
 const bombPlace = new Audio();
 const bombExplodes = new Audio();
@@ -412,6 +423,18 @@ document.addEventListener('keydown', function (e) {
                 placeBomb(row, col);
             }
             bombPlace.play();
+            break;
+        case 'Enter':
+            console.log('Tecla presionada:', e.key);
+            if (isPaused) {
+            // Ocultar la pantalla de pausa
+            pauseScreen.style.display = 'none';
+            } else {
+            // Mostrar la pantalla de pausa
+            pauseScreen.style.display = 'flex';
+           
+            }
+            isPaused = !isPaused; // Alternar entre pausado y no pausado
             break;
         default:
             break;

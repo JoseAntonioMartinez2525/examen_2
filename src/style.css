@@ -15,3 +15,30 @@ body{
 canvas{
     background-image: url("img/grass.jpg");
 }
+
+#game {
+    position: relative;
+}
+
+#pauseScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(128, 128, 128, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 48px;
+    color: white;
+    font-weight: bold;
+
+}
+
+#pauseText {
+    margin: 0;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    position: relative;
+}
