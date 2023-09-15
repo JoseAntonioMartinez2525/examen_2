@@ -338,7 +338,10 @@ let dt;
 function loop(timestamp) {
     
        if (isPaused) {
-        // Si el juego está pausado, registra el tiempo pausado
+        bombPlace.pause();
+        bombExplodes.pause();
+        stageStart.pause();
+
         if (pauseStartTime === null) {
             pauseStartTime = timestamp;
         }
@@ -391,6 +394,7 @@ function loop(timestamp) {
 }
 
 document.addEventListener('keydown', function (e) {
+   
     let row = player.row;
     let col = player.col;
     let audioInitialized = false;
@@ -445,11 +449,16 @@ document.addEventListener('keydown', function (e) {
             if (isPaused) {
             // Ocultar la pantalla de pausa
             pauseScreen.style.display = 'none';
+            
             } else {
             // Mostrar la pantalla de pausa
             pauseScreen.style.display = 'flex';
-           
+
             }
+            bombPlace.pause();
+            bombExplodes.pause();
+            stageStart.pause();
+
             isPaused = !isPaused; // Alternar entre pausado y no pausado
             break;
         default:
@@ -486,12 +495,13 @@ function drawTime(gameTime) {
      //Puntaje
     ctx.fillText("Puntaje: " + score, 400, 30);
 }
+
 // Crear una nueva imagen para el jugador
-const playerImage = new Image();
-playerImage.src = 'img/player.png';
-function padZero(num) {
-    return num.toString().padStart(2, '0');
-}
+    const playerImage = new Image();
+    playerImage.src = 'img/player.png';
+    function padZero(num) {
+        return num.toString().padStart(2, '0');
+    }
 
 // Función para comenzar el juego una vez que la imagen del jugador se haya cargado
 playerImage.onload = function () {
