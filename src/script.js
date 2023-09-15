@@ -22,6 +22,9 @@ pauseScreen.style.top = canvasRect.top + 'px';
 
 const pauseText = document.getElementById('pauseText');
 let isPaused = false;
+let pauseStartTime = null; 
+let elapsedPausedTime = 0; // Tiempo total pausado acumulado
+
 //sonidos
 const bombPlace = new Audio();
 const bombExplodes = new Audio();
@@ -334,8 +337,20 @@ let dt;
 
 function loop(timestamp) {
     
-    requestAnimationFrame(loop);
+       if (isPaused) {
+        // Si el juego está pausado, registra el tiempo pausado
+        if (pauseStartTime === null) {
+            pauseStartTime = timestamp;
+        }
+        elapsedPausedTime = timestamp - pauseStartTime;
+        requestAnimationFrame(loop);
+        return; // No actualices ni dibujes nada mientras esté pausado
+    }
+
+    // Si no está pausado, calcula el tiempo de juego restando el tiempo pausado
+    const gameTime = timestamp - elapsedPausedTime;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    requestAnimationFrame(loop);
 
     // Calcular dif de tiempo
     if (!last) {
@@ -371,7 +386,7 @@ function loop(timestamp) {
     //Icrementar score
     time+=1;
     player.render();
-    drawTime();
+    drawTime(gameTime);
 
 }
 
@@ -456,11 +471,9 @@ function isValidMove(row, col) {
         cells[row][col] !== types.softWall;
 }
 
-// Crear una nueva imagen para el jugador
-const playerImage = new Image();
-playerImage.src = 'img/player.png';
 
-function drawTime() {
+
+function drawTime(gameTime) {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = time % 60;
@@ -473,7 +486,9 @@ function drawTime() {
      //Puntaje
     ctx.fillText("Puntaje: " + score, 400, 30);
 }
-
+// Crear una nueva imagen para el jugador
+const playerImage = new Image();
+playerImage.src = 'img/player.png';
 function padZero(num) {
     return num.toString().padStart(2, '0');
 }
