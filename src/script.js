@@ -20,6 +20,12 @@ const canvasRect = canvas.getBoundingClientRect();
 pauseScreen.style.left = canvasRect.left + 'px';
 pauseScreen.style.top = canvasRect.top + 'px';
 
+const endGameScreen = document.getElementById('pauseScreen');
+pauseScreen.style.width = canvas.width + 'px';
+pauseScreen.style.height = canvas.height + 'px';
+endGameScreen.style.left = canvasRect.left + 'px';
+endGameScreen.style.top = canvasRect.top + 'px';
+
 const pauseText = document.getElementById('pauseText');
 let isPaused = false;
 let pauseStartTime = null; 
@@ -41,7 +47,8 @@ bombPlace.addEventListener('canplaythrough', () => {
     requestAnimationFrame(loop);
 });
 
-let time = 120; //2 minutos
+let time = 90; //minutos
+
 
 softWall.width = softWall.height = grid;
 
@@ -100,22 +107,25 @@ const template = [
 ];
 
 let score = 0;
+
 //generar el nivel con paredes y paredes destruibles
 function generateLevel() {
     cells = [];
+
+    
     for (let row = 0; row < numRows; row++) {
         cells[row] = [];
 
         for (let col = 0; col < numCols; col++) {
 
             if (row === 0 && template[row][col] === 'x') {
-                cells[row][col] = xColor; // Cambia el color solo en la primera fila
+                cells[row][col] = xColor; 
             } else if (!template[row][col] && Math.random() < 0.90) {
                 cells[row][col] = types.softWall;
-                
             } else if (template[row][col] === types.wall) {
                 cells[row][col] = types.wall;
             }
+            
         }
     }
     
@@ -334,10 +344,11 @@ const player = {
 // Ciclo juego
 let last;
 let dt;
-
+let gameOver = false;
+let remainingTime = time * 1000; // Tiempo en milisegundos
 function loop(timestamp) {
     
-       if (isPaused) {
+       if (isPaused || gameOver) {
         bombPlace.pause();
         bombExplodes.pause();
         stageStart.pause();
@@ -349,6 +360,12 @@ function loop(timestamp) {
         requestAnimationFrame(loop);
         return; // No actualices ni dibujes nada mientras esté pausado
     }
+    // Verificar condiciones de finalización
+        if (score >= 250 || time <= 0) {
+            endGame();
+            gameOver = true;
+            return;
+        }
 
     // Si no está pausado, calcula el tiempo de juego restando el tiempo pausado
     const gameTime = timestamp - elapsedPausedTime;
@@ -361,7 +378,15 @@ function loop(timestamp) {
     }
     dt = timestamp - last;
     last = timestamp;
+// Actualizar el tiempo restante
+    remainingTime -= dt;
 
+    // Verificar si el tiempo se ha agotado
+    if (remainingTime <= 0) {
+        endGame();
+        gameOver = true;
+        return;
+    }
     // Actualizar y renderizar todo en el grid
     for (let row = 0; row < numRows; row++) {
         for (let col = 0; col < numCols; col++) {
@@ -372,6 +397,11 @@ function loop(timestamp) {
                 case types.softWall:
                     ctx.drawImage(softWall, col * grid, row * grid);
                     break;
+                case '🚪': // dibuja la puerta solo si el softWall se ha destruido
+                    if (cells[row][col] !== types.softWall) {
+                        ctx.fillText('🚪', col * grid, row * grid, grid, grid);
+                    }
+                    break;    
                     
             }
         }
@@ -386,8 +416,6 @@ function loop(timestamp) {
     // Eliminar entidad muerta
     entidades = entidades.filter((entidad) => entidad.alive);
 
-    //Icrementar score
-    time+=1;
     player.render();
     drawTime(gameTime);
 
@@ -482,11 +510,11 @@ function isValidMove(row, col) {
 
 
 
-function drawTime(gameTime) {
-    const remainingTime = Math.max(0, 120 - Math.floor(gameTime / 1000)); //tiempo en regresion
-    const hours = Math.floor(remainingTime / 3600);
-    const minutes = Math.floor((remainingTime % 3600) / 60);
-    const seconds = remainingTime % 60;
+function drawTime(remainingTime) {
+    const gameTimeInSeconds  = Math.max(0, 120 - Math.floor(remainingTime / 1000)); //tiempo en regresion
+    const hours = Math.floor(gameTimeInSeconds  / 3600);
+    const minutes = Math.floor((gameTimeInSeconds  % 3600) / 60);
+    const seconds = gameTimeInSeconds  % 60;
 
     const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
     ctx.font = "24px Arial";
@@ -523,3 +551,46 @@ playerImage.onload = function () {
     stageStart.play();
     requestAnimationFrame(loop);
 };
+
+// Función para seleccionar aleatoriamente una celda de softWall para la puerta
+function selectRandomSoftWallCell() {
+    const softWallCells = [];
+    for (let row = 0; row < numRows; row++) {
+        for (let col = 0; col < numCols; col++) {
+            if (cells[row][col] === types.softWall) {
+                softWallCells.push({ row, col });
+            }
+        }
+    }
+    // Elegir aleatoriamente una celda de softWall
+    const randomIndex = Math.floor(Math.random() * softWallCells.length);
+    return softWallCells[randomIndex];
+}
+
+function endGame() {
+    isPaused = true; // Pausar el juego
+    const gameTimeInSeconds = Math.floor(time / 1000);
+    const formattedTime = `${padZero(Math.floor(gameTimeInSeconds / 3600))}:${padZero(Math.floor((gameTimeInSeconds % 3600) / 60))}:${padZero(gameTimeInSeconds % 60)}`;
+   
+    if (score >= 250) {
+        const message = "¡Felicidades! Has ganado el juego";
+        // Mostrar el mensaje de victoria en el canvas
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(message, canvas.width / 2 - 200, canvas.height / 2);
+        gameOver = true;
+    } else if(formattedTime==='00:00:00'){
+        const message = "¡Has perdido! El tiempo se agotó";
+        // Mostrar el mensaje de derrota en el canvas
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(message, canvas.width / 2 - 200, canvas.height / 2);
+        gameOver = true;
+    }
+
+    // Detener la reproducción de sonidos
+    bombPlace.pause();
+    bombExplodes.pause();
+    stageStart.pause();
+}
+
