@@ -41,7 +41,7 @@ bombPlace.addEventListener('canplaythrough', () => {
     requestAnimationFrame(loop);
 });
 
-let time = 0;
+let time = 120; //2 minutos
 
 softWall.width = softWall.height = grid;
 
@@ -216,7 +216,7 @@ class Bomb {
         this.type = types.bomb;
 
         //timer 3 segs
-        this.timer = 3000;
+        this.timer = 2000;
 
         //actualiza bomba en cada frame
         this.update = function (dt) {
@@ -268,8 +268,8 @@ class Explosion {
         this.dir = dir;
         this.alive = true;
 
-        //muestra explosión por 3 seg.
-        this.timer = 3000;
+        //muestra explosión por 0.5 seg.
+        this.timer = 500;
 
         //actualizar la explosión en cada frame
         this.update = function (dt) {
@@ -483,9 +483,10 @@ function isValidMove(row, col) {
 
 
 function drawTime(gameTime) {
-    const hours = Math.floor(time / 3600);
-    const minutes = Math.floor((time % 3600) / 60);
-    const seconds = time % 60;
+    const remainingTime = Math.max(0, 120 - Math.floor(gameTime / 1000)); //tiempo en regresion
+    const hours = Math.floor(remainingTime / 3600);
+    const minutes = Math.floor((remainingTime % 3600) / 60);
+    const seconds = remainingTime % 60;
 
     const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
     ctx.font = "24px Arial";
