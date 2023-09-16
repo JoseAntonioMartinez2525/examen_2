@@ -32,6 +32,7 @@ canvas{
     font-size: 48px;
     color: white;
     font-weight: bold;
+    flex-direction: column;
 
 }
 
@@ -41,4 +42,11 @@ canvas{
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     position: relative;
+}
+
+.gameplay-info {
+    margin-top: 20px;
+    font-size: 20px;
+    color: #ffffff;
+
 }

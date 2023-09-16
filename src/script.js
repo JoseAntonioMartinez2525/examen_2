@@ -3,8 +3,7 @@ const ctx = canvas.getContext('2d');
 const grid = 40;
 const numRows = 12;
 const numCols = 14;
-//let playerX = 0; // La posición X del jugador en el canvas
-//let playerY = 0; // La posición Y del jugador en el canvas
+
 const playerSpeed = 4; // Velocidad de movimiento del jugador
 const xColor = 'blue'; 
 //pared blanda o destruible
@@ -481,6 +480,17 @@ document.addEventListener('keydown', function (e) {
             } else {
             // Mostrar la pantalla de pausa
             pauseScreen.style.display = 'flex';
+            document.getElementById('gameplayInfo').textContent = `
+                Jugabilidad:\n
+                🡡, W = arriba\n
+                🡣, S = abajo\n
+                🡠, A = izquierda\n
+                🡢, D = derecha\n
+                'Enter' = PAUSA\n
+                espacio = poner bomba
+                `;
+
+            document.getElementById('gameplayInfo').style.whiteSpace = 'pre-line';
 
             }
             bombPlace.pause();
